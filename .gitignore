@@ -1,0 +1,76 @@
+# ============================================================
+# VYLORA — .gitignore
+# ============================================================
+
+# ---- Dependencias ----
+node_modules/
+.pnp
+.pnp.js
+
+# ---- Build / Output ----
+dist/
+dist-ssr/
+build/
+.output/
+
+# ---- Variables de entorno (NUNCA subir al repo) ----
+.env
+.env.local
+.env.*.local
+.env.development
+.env.production
+# El .env.example SÍ se sube (no tiene valores reales)
+!.env.example
+
+# ---- Cache de Vite / TypeScript ----
+*.local
+.vite/
+tsconfig.tsbuildinfo
+node_modules/.tmp/
+node_modules/.cache/
+
+# ---- Logs ----
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# ---- Sistema operativo ----
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+desktop.ini
+
+# ---- Editores ----
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.json
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+*.swp
+*.swo
+
+# ---- PWA / Service Worker (generados en build) ----
+public/sw.js
+public/workbox-*.js
+public/registerSW.js
+public/manifest.webmanifest
+
+# ---- Testing ----
+coverage/
+*.snap
+
+# ---- Misceláneos ----
+*.pem
+.npmrc.local

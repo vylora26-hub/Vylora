@@ -1,0 +1,69 @@
+/* ============================================================
+   CSS CUSTOM PROPERTIES — Sistema de diseño de ChatSphere
+   Todas las variables del tema centralizadas aquí.
+   El modo oscuro/claro se controla con la clase .dark/.light en <html>.
+   ============================================================ */
+
+/* ---- DARK MODE (default) ---- */
+:root,
+html.dark {
+  /* Fondos */
+  --cs-bg:            #0f0f11;
+  --cs-surface:       #18181b;
+  --cs-surface-2:     #1f1f23;
+  --cs-surface-hover: #27272a;
+
+  /* Bordes */
+  --cs-border:        rgba(255,255,255,0.07);
+  --cs-border-strong: rgba(255,255,255,0.14);
+
+  /* Texto */
+  --cs-text:          #fafafa;
+  --cs-text-secondary:#a1a1aa;
+  --cs-text-muted:    #71717a;
+
+  /* Primario (índigo) */
+  --cs-primary:       #6366f1;
+  --cs-primary-hover: #4f46e5;
+  --cs-primary-subtle:rgba(99,102,241,0.12);
+
+  /* Acento (violeta) */
+  --cs-accent:        #8b5cf6;
+
+  /* Sombras */
+  --cs-shadow-sm:     0 1px 3px rgba(0,0,0,0.4);
+  --cs-shadow-md:     0 4px 16px rgba(0,0,0,0.4);
+  --cs-shadow-lg:     0 12px 40px rgba(0,0,0,0.5);
+
+  /* Scrollbar */
+  --cs-scrollbar-track: #18181b;
+  --cs-scrollbar-thumb: #3f3f46;
+}
+
+/* ---- LIGHT MODE ---- */
+html.light {
+  --cs-bg:            #f4f4f5;
+  --cs-surface:       #ffffff;
+  --cs-surface-2:     #f9f9fb;
+  --cs-surface-hover: #f0f0f4;
+
+  --cs-border:        rgba(0,0,0,0.08);
+  --cs-border-strong: rgba(0,0,0,0.15);
+
+  --cs-text:          #09090b;
+  --cs-text-secondary:#52525b;
+  --cs-text-muted:    #a1a1aa;
+
+  --cs-primary:       #4f46e5;
+  --cs-primary-hover: #4338ca;
+  --cs-primary-subtle:rgba(79,70,229,0.1);
+
+  --cs-accent:        #7c3aed;
+
+  --cs-shadow-sm:     0 1px 3px rgba(0,0,0,0.08);
+  --cs-shadow-md:     0 4px 16px rgba(0,0,0,0.1);
+  --cs-shadow-lg:     0 12px 40px rgba(0,0,0,0.14);
+
+  --cs-scrollbar-track: #f4f4f5;
+  --cs-scrollbar-thumb: #d4d4d8;
+}

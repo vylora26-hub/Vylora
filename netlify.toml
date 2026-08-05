@@ -1,0 +1,71 @@
+# ============================================================
+# NETLIFY CONFIG — Vylora
+# ============================================================
+
+[build]
+  command       = "npm run build"
+  publish       = "dist"
+  ignore        = "git diff --quiet $CACHED_COMMIT_REF $COMMIT_REF -- . ':!**.md'"
+
+[build.environment]
+  NODE_VERSION  = "20"
+  NPM_FLAGS     = "--legacy-peer-deps"
+
+# ============================================================
+# REDIRECTS — SPA fallback (todas las rutas → index.html)
+# ============================================================
+
+[[redirects]]
+  from   = "/*"
+  to     = "/index.html"
+  status = 200
+
+# ============================================================
+# SERVICE WORKER — Sin cache para que siempre esté actualizado
+# ============================================================
+
+[[headers]]
+  for = "/sw.js"
+  [headers.values]
+    Cache-Control          = "public, max-age=0, must-revalidate"
+    Service-Worker-Allowed = "/"
+
+[[headers]]
+  for = "/manifest.webmanifest"
+  [headers.values]
+    Content-Type  = "application/manifest+json"
+    Cache-Control = "public, max-age=0, must-revalidate"
+
+# ============================================================
+# HEADERS DE SEGURIDAD — Todas las rutas
+# ============================================================
+
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Frame-Options              = "DENY"
+    X-Content-Type-Options       = "nosniff"
+    X-XSS-Protection             = "1; mode=block"
+    Referrer-Policy              = "strict-origin-when-cross-origin"
+    Permissions-Policy           = "camera=(), microphone=(), geolocation=()"
+    Strict-Transport-Security    = "max-age=63072000; includeSubDomains; preload"
+    Content-Security-Policy      = "default-src 'self'; script-src 'self' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https://*.supabase.co blob:; font-src 'self'; connect-src 'self' https://*.supabase.co wss://*.supabase.co; frame-ancestors 'none'; base-uri 'self'; form-action 'self';"
+
+# ============================================================
+# CACHE DE ASSETS ESTATICOS
+# ============================================================
+
+[[headers]]
+  for = "/assets/*"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+[[headers]]
+  for = "*.png"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+[[headers]]
+  for = "*.svg"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"

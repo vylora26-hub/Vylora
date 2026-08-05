@@ -1,0 +1,37 @@
+﻿<!doctype html>
+<html lang="es" class="dark">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <meta name="description" content="Vylora — Plataforma de chat moderna, rápida y segura. Crea salas, conecta con personas y chatea en tiempo real." />
+    <meta name="theme-color" content="#0f0f11" media="(prefers-color-scheme: dark)" />
+    <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)" />
+
+    <!-- Security headers via meta (reforzado también en vercel.json) -->
+    <meta http-equiv="X-Content-Type-Options" content="nosniff" />
+    <meta http-equiv="X-Frame-Options" content="DENY" />
+
+    <!-- Open Graph -->
+    <meta property="og:title" content="Vylora" />
+    <meta property="og:description" content="Chat moderno en tiempo real. Salas públicas, mensajes privados y comunidades." />
+    <meta property="og:type" content="website" />
+
+    <!-- PWA -->
+    <link rel="icon" type="image/png" href="/LOGO-Vylora.png" />
+    <link rel="apple-touch-icon" href="/LOGO-Vylora.png" />
+    <link rel="manifest" href="/manifest.webmanifest" />
+
+    <title>Vylora</title>
+  </head>
+  <body>
+    <!-- Noscript fallback -->
+    <noscript>
+      <div style="padding:2rem;text-align:center;font-family:sans-serif;">
+        Vylora requiere JavaScript para funcionar. Por favor actívalo en tu navegador.
+      </div>
+    </noscript>
+
+    <div id="app"></div>
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>
