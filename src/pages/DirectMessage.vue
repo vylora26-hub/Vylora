@@ -5,6 +5,7 @@ import { useDmStore } from '@/stores/dm'
 import { useAuthStore } from '@/stores/auth'
 import { useUiStore } from '@/stores/ui'
 import { useRateLimit } from '@/composables/useRateLimit'
+import { useSecurity } from '@/composables/useSecurity'
 import { formatDateSeparator, formatMessageTime } from '@/utils/formatDate'
 import MessageInput from '@/components/chat/MessageInput.vue'
 import AppAvatar from '@/components/ui/AppAvatar.vue'
@@ -20,6 +21,27 @@ const dmStore   = useDmStore()
 const authStore = useAuthStore()
 const uiStore   = useUiStore()
 const rateLimit = useRateLimit()
+
+const { isNewAccount, accountAgeDays } = useSecurity()
+const bannerDismissed = ref(false)
+
+const otherUser = computed(() => dmStore.conversations.find(c => c.id === props.id)?.otherUser)
+const showSecurityBanner = computed(() => {
+  if (bannerDismissed.value) return false
+  const u = otherUser.value
+  if (!u) return false
+  // Mostrar si: cuenta nueva O no verificada (y hay historial mínimo)
+  return isNewAccount(u.createdAt) || !u.isVerified
+})
+
+const bannerType = computed(() => {
+  const u = otherUser.value
+  if (!u) return 'info'
+  const days = accountAgeDays(u.createdAt)
+  if (days < 7)  return 'danger'
+  if (days < 30) return 'warning'
+  return 'info'
+})
 
 const msgListRef = ref<HTMLElement | null>(null)
 
@@ -89,6 +111,45 @@ const isOwn = (msg: DirectMessage) => msg.senderId === authStore.userId
         <p class="dm-page__status">En línea</p>
       </div>
     </header>
+
+    <!-- Banner de seguridad anti-estafa -->
+    <Transition name="banner-slide">
+      <div
+        v-if="showSecurityBanner"
+        class="dm-security-banner"
+        :class="`dm-security-banner--${bannerType}`"
+        role="alert"
+      >
+        <div class="dm-security-banner__content">
+          <span class="dm-security-banner__icon" aria-hidden="true">
+            {{ bannerType === 'danger' ? '🚨' : bannerType === 'warning' ? '⚠️' : 'ℹ️' }}
+          </span>
+          <div class="dm-security-banner__text">
+            <strong class="dm-security-banner__title">
+              {{ bannerType === 'danger'
+                ? `Cuenta muy nueva (menos de 7 días)`
+                : bannerType === 'warning'
+                ? `@${otherUser?.username} tiene una cuenta nueva`
+                : `@${otherUser?.username} no está verificado`
+              }}
+            </strong>
+            <span class="dm-security-banner__desc">
+              Nunca envíes dinero, datos bancarios ni contraseñas a personas que no conoces.
+              <a href="/app/security" class="dm-security-banner__link">Ver consejos de seguridad →</a>
+            </span>
+          </div>
+        </div>
+        <button
+          class="dm-security-banner__close"
+          aria-label="Cerrar aviso de seguridad"
+          @click="bannerDismissed = true"
+        >
+          <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5" aria-hidden="true">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
+          </svg>
+        </button>
+      </div>
+    </Transition>
 
     <!-- Messages -->
     <div ref="msgListRef" class="dm-page__messages" role="log" aria-label="Mensajes privados" aria-live="polite">
@@ -172,4 +233,40 @@ const isOwn = (msg: DirectMessage) => msg.senderId === authStore.userId
 .dm-bubble--own .dm-bubble__deleted { color: rgba(255,255,255,0.6); }
 .dm-bubble__meta  { display: flex; align-items: center; justify-content: flex-end; gap: 0.25rem; margin-top: 0.2rem; }
 .dm-bubble__time  { font-size: 0.6875rem; opacity: 0.6; }
+
+/* ---- Banner de seguridad ---- */
+.dm-security-banner {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid;
+  flex-shrink: 0;
+}
+
+.dm-security-banner--danger  { background: rgba(239,68,68,0.07);   border-color: rgba(239,68,68,0.25);   }
+.dm-security-banner--warning { background: rgba(245,158,11,0.07);  border-color: rgba(245,158,11,0.25);  }
+.dm-security-banner--info    { background: rgba(99,102,241,0.07);  border-color: rgba(99,102,241,0.2);   }
+
+.dm-security-banner__content { display: flex; align-items: flex-start; gap: 0.625rem; flex: 1; }
+.dm-security-banner__icon    { font-size: 1rem; flex-shrink: 0; margin-top: 1px; }
+.dm-security-banner__text    { display: flex; flex-direction: column; gap: 0.2rem; }
+.dm-security-banner__title   { font-size: 0.8125rem; font-weight: 700; color: var(--cs-text); }
+.dm-security-banner__desc    { font-size: 0.75rem; color: var(--cs-text-muted); line-height: 1.45; }
+.dm-security-banner__link    { color: var(--cs-primary); text-decoration: none; font-weight: 500; }
+.dm-security-banner__link:hover { opacity: 0.8; }
+
+.dm-security-banner__close {
+  flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+  width: 24px; height: 24px; border-radius: 4px;
+  background: transparent; border: none;
+  color: var(--cs-text-muted); cursor: pointer;
+  transition: background 0.12s;
+}
+.dm-security-banner__close:hover { background: var(--cs-surface-hover); }
+
+.banner-slide-enter-active, .banner-slide-leave-active { transition: all 0.2s ease; }
+.banner-slide-enter-from, .banner-slide-leave-to       { opacity: 0; max-height: 0; padding: 0 1rem; }
 </style>

@@ -123,6 +123,12 @@ const routes: RouteRecordRaw[] = [
         component: () => import('@/pages/Settings.vue'),
         meta: { title: 'Configuración — Vylora' },
       },
+      {
+        path: 'security',
+        name: 'Security',
+        component: () => import('@/pages/Security.vue'),
+        meta: { title: 'Seguridad — Vylora' },
+      },
     ],
   },
 

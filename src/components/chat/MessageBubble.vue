@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
 import { useAuthStore } from '@/stores/auth'
+import { useSecurity } from '@/composables/useSecurity'
 import { formatMessageTime, formatFullDate } from '@/utils/formatDate'
 import AppAvatar from '@/components/ui/AppAvatar.vue'
 import type { Message } from '@/types'
@@ -20,11 +21,18 @@ const emit = defineEmits<{
 }>()
 
 const authStore  = useAuthStore()
+const { isNewAccount, accountAgeDays } = useSecurity()
+
 const showMenu   = ref(false)
 const showPicker = ref(false)
 
-const isOwn = computed(() => props.message.senderId === authStore.userId)
+const isOwn     = computed(() => props.message.senderId === authStore.userId)
 const isDeleted = computed(() => props.message.isDeleted)
+
+// Badge de cuenta nueva basado en createdAt del sender
+const senderIsNew     = computed(() => isNewAccount(props.message.sender?.createdAt))
+const senderAgeDays   = computed(() => accountAgeDays(props.message.sender?.createdAt))
+const senderVerified  = computed(() => props.message.sender?.isVerified ?? false)
 
 const totalReactions = computed(() => {
   const map: Record<string, number> = {}
@@ -63,10 +71,34 @@ function copyText() {
     </div>
 
     <div class="bubble-wrap__main">
-      <!-- Nombre del remitente -->
-      <span v-if="!isOwn && showAvatar" class="bubble-wrap__sender">
-        {{ message.sender?.displayName ?? message.sender?.username }}
-      </span>
+      <!-- Nombre del remitente + badges de seguridad -->
+      <div v-if="!isOwn && showAvatar" class="bubble-wrap__sender-row">
+        <span class="bubble-wrap__sender">
+          {{ message.sender?.displayName ?? message.sender?.username }}
+        </span>
+        <!-- Badge verificado -->
+        <span
+          v-if="senderVerified"
+          class="sec-badge sec-badge--verified"
+          title="Cuenta verificada por Vylora"
+          aria-label="Cuenta verificada"
+        >
+          <svg width="9" height="9" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3" aria-hidden="true">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/>
+          </svg>
+          Verificado
+        </span>
+        <!-- Badge cuenta nueva -->
+        <span
+          v-else-if="senderIsNew && !isOwn"
+          class="sec-badge"
+          :class="senderAgeDays < 7 ? 'sec-badge--new-orange' : 'sec-badge--new-yellow'"
+          :title="`Cuenta creada hace ${senderAgeDays} día${senderAgeDays === 1 ? '' : 's'} — sé precavido`"
+          :aria-label="`Cuenta nueva: ${senderAgeDays} días`"
+        >
+          🆕 Cuenta nueva
+        </span>
+      </div>
 
       <!-- Reply preview -->
       <div v-if="message.replyTo" class="bubble-reply">
@@ -155,6 +187,45 @@ function copyText() {
 .bubble-wrap--own .bubble-wrap__main { align-items: flex-end; }
 
 .bubble-wrap__sender { font-size: 0.75rem; font-weight: 600; color: var(--cs-primary); padding-left: 0.75rem; }
+
+.bubble-wrap__sender-row {
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+  flex-wrap: wrap;
+  padding-left: 0.75rem;
+}
+
+/* ---- Badges de seguridad ---- */
+.sec-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.2rem;
+  font-size: 0.625rem;
+  font-weight: 700;
+  padding: 0.1rem 0.4rem;
+  border-radius: 9999px;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+}
+
+.sec-badge--verified {
+  background: rgba(99,102,241,0.12);
+  color: #6366f1;
+  border: 1px solid rgba(99,102,241,0.3);
+}
+
+.sec-badge--new-orange {
+  background: rgba(249,115,22,0.12);
+  color: #f97316;
+  border: 1px solid rgba(249,115,22,0.3);
+}
+
+.sec-badge--new-yellow {
+  background: rgba(245,158,11,0.12);
+  color: #d97706;
+  border: 1px solid rgba(245,158,11,0.3);
+}
 
 .bubble-reply {
   background: var(--cs-surface-2);

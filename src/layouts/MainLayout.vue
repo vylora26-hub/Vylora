@@ -33,6 +33,7 @@ const navItems: NavItem[] = [
   { label: 'Amigos',         path: '/app/friends',       icon: 'users'           },
   { label: 'Notificaciones', path: '/app/notifications', icon: 'bell'            },
   { label: 'Mi perfil',      path: '/app/profile',       icon: 'user'            },
+  { label: 'Seguridad',      path: '/app/security',      icon: 'shield'          },
   { label: 'Ajustes',        path: '/app/settings',      icon: 'cog'             },
 ]
 

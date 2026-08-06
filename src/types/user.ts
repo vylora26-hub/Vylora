@@ -34,6 +34,8 @@ export interface PublicUser {
   isVerified: boolean
   lastSeenAt: string | null
   onlineStatus: OnlineStatus
+  /** Fecha de creación — para badge "Cuenta nueva" (< 30 días) */
+  createdAt?: string
 }
 
 /** Datos editables del perfil propio */
