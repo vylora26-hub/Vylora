@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { onMounted } from 'vue'
-import { useRouter } from 'vue-router'
+import { useRouter, RouterLink } from 'vue-router'
 import { useRoomsStore } from '@/stores/rooms'
 import { useAuthStore } from '@/stores/auth'
 import { useNotificationsStore } from '@/stores/notifications'
@@ -139,6 +139,16 @@ const greeting = hour < 12 ? 'Buenos días' : hour < 18 ? 'Buenas tardes' : 'Bue
       </AppEmptyState>
     </section>
 
+    <!-- Acceso admin discreto en el footer -->
+    <div v-if="authStore.isAdmin" class="home-page__admin-footer">
+      <RouterLink to="/admin/dashboard" class="home-page__admin-link">
+        <svg width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+        </svg>
+        Panel de administración
+      </RouterLink>
+    </div>
+
   </div>
 </template>
 
@@ -233,5 +243,33 @@ const greeting = hour < 12 ? 'Buenos días' : hour < 18 ? 'Buenas tardes' : 'Bue
   .home-page__quick { padding: 1rem 1.25rem; }
   .home-page__quick-grid { grid-template-columns: repeat(2, 1fr); }
   .home-page__section { padding: 1.5rem 1.25rem; }
+}
+
+/* Admin footer */
+.home-page__admin-footer {
+  display: flex;
+  justify-content: center;
+  padding: 1rem 2rem 0;
+}
+
+.home-page__admin-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  font-size: 0.75rem;
+  color: var(--cs-text-muted);
+  text-decoration: none;
+  opacity: 0.4;
+  transition: opacity 0.2s, color 0.2s;
+  padding: 0.375rem 0.75rem;
+  border-radius: 9999px;
+  border: 1px solid transparent;
+}
+
+.home-page__admin-link:hover {
+  opacity: 1;
+  color: #ef4444;
+  border-color: rgba(239,68,68,0.3);
+  background: rgba(239,68,68,0.04);
 }
 </style>

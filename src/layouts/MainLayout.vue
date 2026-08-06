@@ -1,6 +1,6 @@
 ﻿<script setup lang="ts">
 import { computed, onMounted, onUnmounted } from 'vue'
-import { RouterView, RouterLink, useRoute } from 'vue-router'
+import { RouterView, RouterLink, useRoute, useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 import { useUiStore } from '@/stores/ui'
 import { useNotificationsStore } from '@/stores/notifications'
@@ -8,7 +8,8 @@ import { useDmStore } from '@/stores/dm'
 import ToastContainer from '@/components/common/ToastContainer.vue'
 import type { NavItem } from '@/types'
 
-const route = useRoute()
+const route  = useRoute()
+const router = useRouter()
 const authStore = useAuthStore()
 const uiStore = useUiStore()
 const notifStore = useNotificationsStore()
@@ -25,6 +26,11 @@ onMounted(() => {
 onUnmounted(() => {
   notifStore.unsubscribe()
 })
+
+async function logout() {
+  await authStore.logout()
+  router.push('/')
+}
 
 const navItems: NavItem[] = [
   { label: 'Inicio',         path: '/app/home',          icon: 'home'            },
@@ -150,39 +156,56 @@ function getNavIcon(icon: string): string {
 
       <!-- Usuario en el fondo del sidebar -->
       <div class="sidebar__user">
-        <RouterLink to="/app/profile" class="sidebar__user-link" :aria-label="`Perfil de ${authStore.user?.displayName}`">
-          <div class="sidebar__user-avatar" aria-hidden="true">
-            <img
-              v-if="authStore.user?.avatarUrl"
-              :src="authStore.user.avatarUrl"
-              :alt="authStore.user.displayName"
-              class="sidebar__user-avatar-img"
-            />
-            <span v-else class="sidebar__user-avatar-fallback">
-              {{ authStore.user?.displayName?.charAt(0)?.toUpperCase() ?? '?' }}
-            </span>
-            <span class="sidebar__user-online" aria-label="En línea" />
-          </div>
-          <div v-show="uiStore.sidebarOpen" class="sidebar__user-info">
-            <span class="sidebar__user-name">{{ authStore.user?.displayName }}</span>
-            <span class="sidebar__user-handle">@{{ authStore.user?.username }}</span>
-          </div>
-        </RouterLink>
+        <!-- Fila superior: avatar + nombre + tema -->
+        <div class="sidebar__user-top">
+          <RouterLink to="/app/profile" class="sidebar__user-link" :aria-label="`Perfil de ${authStore.user?.displayName}`">
+            <div class="sidebar__user-avatar" aria-hidden="true">
+              <img
+                v-if="authStore.user?.avatarUrl"
+                :src="authStore.user.avatarUrl"
+                :alt="authStore.user.displayName"
+                class="sidebar__user-avatar-img"
+              />
+              <span v-else class="sidebar__user-avatar-fallback">
+                {{ authStore.user?.displayName?.charAt(0)?.toUpperCase() ?? '?' }}
+              </span>
+              <span class="sidebar__user-online" aria-label="En línea" />
+            </div>
+            <div v-show="uiStore.sidebarOpen" class="sidebar__user-info">
+              <span class="sidebar__user-name">{{ authStore.user?.displayName }}</span>
+              <span class="sidebar__user-handle">@{{ authStore.user?.username }}</span>
+            </div>
+          </RouterLink>
 
-        <!-- Cambio de tema -->
-        <button
-          v-show="uiStore.sidebarOpen"
-          class="sidebar__theme-btn"
-          :aria-label="`Cambiar a modo ${uiStore.isDark ? 'claro' : 'oscuro'}`"
-          @click="uiStore.setTheme(uiStore.isDark ? 'light' : 'dark')"
-        >
-          <svg v-if="uiStore.isDark" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
-          </svg>
-          <svg v-else width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
-          </svg>
-        </button>
+          <!-- Cambio de tema -->
+          <button
+            v-show="uiStore.sidebarOpen"
+            class="sidebar__theme-btn"
+            :aria-label="`Cambiar a modo ${uiStore.isDark ? 'claro' : 'oscuro'}`"
+            @click="uiStore.setTheme(uiStore.isDark ? 'light' : 'dark')"
+          >
+            <svg v-if="uiStore.isDark" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
+            </svg>
+            <svg v-else width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
+            </svg>
+          </button>
+        </div>
+
+        <!-- Fila inferior: cerrar sesión (siempre visible) -->
+        <div v-show="uiStore.sidebarOpen" class="sidebar__user-actions">
+          <button
+            class="sidebar__logout-btn"
+            aria-label="Cerrar sesión"
+            @click="logout"
+          >
+            <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+            </svg>
+            Cerrar sesión
+          </button>
+        </div>
       </div>
     </aside>
 
@@ -400,10 +423,16 @@ function getNavIcon(icon: string): string {
 /* ---- User footer ---- */
 .sidebar__user {
   display: flex;
+  flex-direction: column;
+  padding: 0.75rem;
+  border-top: 1px solid var(--cs-border);
+  gap: 0.5rem;
+}
+
+.sidebar__user-top {
+  display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0.75rem 0.75rem;
-  border-top: 1px solid var(--cs-border);
   gap: 0.5rem;
 }
 
@@ -495,6 +524,36 @@ function getNavIcon(icon: string): string {
 .sidebar__theme-btn:hover {
   background: var(--cs-surface-hover);
   color: var(--cs-text);
+}
+
+/* Acciones del footer */
+.sidebar__user-actions {
+  display: flex;
+  gap: 0.375rem;
+}
+
+.sidebar__logout-btn {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.375rem;
+  padding: 0.4375rem 0.75rem;
+  border-radius: 0.5rem;
+  background: transparent;
+  border: 1px solid var(--cs-border);
+  color: var(--cs-text-muted);
+  font-size: 0.8125rem;
+  font-weight: 500;
+  cursor: pointer;
+  font-family: inherit;
+  transition: background 0.15s, color 0.15s, border-color 0.15s;
+}
+
+.sidebar__logout-btn:hover {
+  background: rgba(239,68,68,0.08);
+  color: #ef4444;
+  border-color: rgba(239,68,68,0.3);
 }
 
 /* ---- Contenido ---- */
