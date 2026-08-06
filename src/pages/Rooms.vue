@@ -4,6 +4,7 @@ import { useRouter } from 'vue-router'
 import { useRoomsStore } from '@/stores/rooms'
 import { useAuthStore } from '@/stores/auth'
 import { useUiStore } from '@/stores/ui'
+import { supabase, isMockMode } from '@/services/supabase'
 import { useDebounce } from '@/composables/useDebounce'
 import AppButton from '@/components/ui/AppButton.vue'
 import AppInput from '@/components/ui/AppInput.vue'
@@ -22,7 +23,10 @@ const search        = ref('')
 const searchDebounced = useDebounce(search, 300)
 const activeCategory = ref('')
 const showCreate    = ref(false)
+const showRequest   = ref(false)
 const showJoinModal = ref(false)
+const requesting    = ref(false)
+const requestForm   = ref({ name: '', description: '', reason: '' })
 const joinPassword  = ref('')
 const joiningRoomId = ref('')
 const joining       = ref(false)
@@ -45,6 +49,30 @@ onMounted(async () => {
 
 watch(searchDebounced, (q) => roomsStore.fetchRooms({ search: q, categoryId: activeCategory.value || undefined }))
 watch(activeCategory, (cat) => roomsStore.fetchRooms({ search: searchDebounced.value, categoryId: cat || undefined }))
+
+async function submitRequest() {
+  if (!requestForm.value.name.trim()) { uiStore.toast.error('Escribe el nombre de la sala'); return }
+  if (!authStore.isAuthenticated) { router.push('/auth/login'); return }
+  requesting.value = true
+  try {
+    if (isMockMode) {
+      uiStore.toast.success('Solicitud enviada', 'El equipo de Vylora la revisará pronto.')
+      showRequest.value = false
+      return
+    }
+    const { error } = await supabase!.rpc('request_room', {
+      p_room_name:   requestForm.value.name,
+      p_description: requestForm.value.description || null,
+      p_reason:      requestForm.value.reason || null,
+    })
+    if (error) throw error
+    uiStore.toast.success('¡Solicitud enviada!', 'Recibirás una notificación cuando sea aprobada.')
+    showRequest.value = false
+    requestForm.value = { name: '', description: '', reason: '' }
+  } catch (e: unknown) {
+    uiStore.toast.error('Error', e instanceof Error ? e.message : '')
+  } finally { requesting.value = false }
+}
 
 async function handleJoin(roomId: string, type: string) {
   if (!authStore.isAuthenticated) { router.push('/auth/login'); return }
@@ -98,6 +126,7 @@ function goToRoom(slug: string, isMember: boolean, type: string, roomId: string)
 }
 
 const filteredRooms = computed(() => roomsStore.rooms)
+
 </script>
 
 <template>
@@ -113,6 +142,12 @@ const filteredRooms = computed(() => roomsStore.rooms)
           <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/>
         </svg>
         Nueva sala
+      </AppButton>
+      <AppButton v-if="authStore.isAuthenticated" variant="outline" size="sm" @click="showRequest = true">
+        <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5" aria-hidden="true">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"/>
+        </svg>
+        Solicitar sala
       </AppButton>
     </header>
 
@@ -194,6 +229,24 @@ const filteredRooms = computed(() => roomsStore.rooms)
         Crear sala
       </AppButton>
     </AppEmptyState>
+
+    <!-- Modal: Solicitar sala -->
+    <AppModal
+      v-model="showRequest"
+      title="Solicitar una nueva sala"
+      confirm-label="Enviar solicitud"
+      :loading="requesting"
+      @confirm="submitRequest"
+    >
+      <div style="display:flex;flex-direction:column;gap:0.875rem">
+        <p style="font-size:0.875rem;color:var(--cs-text-muted);line-height:1.5">
+          ¿No encuentras la sala que buscas? Cuéntanos qué sala quieres y el equipo de Vylora la revisará. Recibirás una notificación cuando sea aprobada.
+        </p>
+        <AppInput v-model="requestForm.name" label="Nombre de la sala" placeholder="Ej: Bogotá Noche, Músicos Colombia..." :maxlength="50" :required="true" />
+        <AppInput v-model="requestForm.description" label="Descripción (opcional)" placeholder="¿De qué tratará esta sala?" :maxlength="200" />
+        <AppInput v-model="requestForm.reason" label="¿Por qué quieres esta sala?" placeholder="Cuéntanos el motivo..." :maxlength="200" />
+      </div>
+    </AppModal>
 
     <!-- Modal: Unirse con contraseña -->
     <AppModal

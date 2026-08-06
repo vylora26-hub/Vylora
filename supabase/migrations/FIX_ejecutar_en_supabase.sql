@@ -158,7 +158,6 @@ drop policy if exists "rooms_insert_authenticated" on public.rooms;
 create policy "rooms_insert_authenticated" on public.rooms for insert with check (
   auth.uid() is not null
   and auth.uid() = owner_id
-  and not public.is_user_banned(auth.uid())
 );
 
 drop policy if exists "rooms_update_owner_or_mod" on public.rooms;
