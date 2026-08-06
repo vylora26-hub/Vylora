@@ -143,33 +143,40 @@ export const useAuthStore = defineStore('auth', () => {
         return true
       }
 
-      // 1. Buscar el email del usuario por su username
-      const { data: profile, error: profileErr } = await supabase!
+      // ESTRATEGIA 1: Buscar en public.users por username → obtener email via RPC
+      const { data: profile } = await supabase!
         .from('users')
         .select('id')
-        .eq('username', username)
-        .single()
+        .eq('username', username.toLowerCase().trim())
+        .maybeSingle()
 
-      if (profileErr || !profile) {
-        setError('Usuario o contraseña incorrectos.')
-        return false
+      let emailToUse: string | null = null
+
+      if (profile?.id) {
+        // Tenemos el ID — obtener email real
+        const { data: emailData } = await supabase!
+          .rpc('get_email_by_user_id', { p_user_id: profile.id })
+        emailToUse = emailData as string | null
       }
 
-      // 2. Obtener el email desde auth.users via RPC
-      const { data: emailData, error: emailErr } = await supabase!
-        .rpc('get_email_by_user_id', { p_user_id: profile.id })
-
-      if (emailErr || !emailData) {
-        setError('Usuario o contraseña incorrectos.')
-        return false
+      // ESTRATEGIA 2: Fallback — construir email interno directamente
+      // (funciona si el registro usó username@users.vylora.app)
+      if (!emailToUse) {
+        emailToUse = `${sanitizeText(username.toLowerCase().trim())}@users.vylora.app`
       }
 
-      // 3. Autenticar con email + password
+      // Autenticar con email + password
       const { data, error: err } = await supabase!.auth.signInWithPassword({
-        email: emailData as string,
+        email: emailToUse,
         password,
       })
-      if (err) throw err
+
+      if (err) {
+        // Si ambas estrategias fallaron, mostrar error claro
+        setError(_mapAuthError(err.message))
+        return false
+      }
+
       if (!data.session) throw new Error('No se recibió sesión.')
 
       await _loadSessionFromSupabase(
@@ -407,10 +414,12 @@ export const useAuthStore = defineStore('auth', () => {
   }
 
   function _mapAuthError(msg: string): string {
-    if (msg.includes('Invalid login credentials')) return 'Email o contraseña incorrectos.'
-    if (msg.includes('Email not confirmed')) return 'Confirma tu email antes de iniciar sesión.'
-    if (msg.includes('User already registered')) return 'Este email ya está registrado.'
+    if (msg.includes('Invalid login credentials'))   return 'Usuario o contraseña incorrectos.'
+    if (msg.includes('Email not confirmed'))         return 'Debes confirmar tu email antes de iniciar sesión. Revisa tu bandeja de entrada.'
+    if (msg.includes('User already registered'))     return 'Este nombre de usuario ya está registrado.'
     if (msg.includes('Password should be at least')) return 'La contraseña es demasiado corta.'
+    if (msg.includes('username no coincide'))        return 'El nombre de usuario no coincide.'
+    if (msg.includes('No autenticado'))              return 'No estás autenticado.'
     return msg
   }
 

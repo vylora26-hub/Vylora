@@ -105,10 +105,10 @@
 }
 
 .auth-layout__logo-img {
-  width: 38px;
-  height: 38px;
+  width: 52px;
+  height: 52px;
   object-fit: contain;
-  filter: drop-shadow(0 2px 8px rgba(139,92,246,0.4));
+  filter: drop-shadow(0 2px 12px rgba(139,92,246,0.5));
 }
 
 .auth-layout__logo {
