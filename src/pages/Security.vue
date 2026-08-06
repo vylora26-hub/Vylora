@@ -51,14 +51,14 @@ const deviceIcons: Record<string, string> = {
   unknown: 'M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z',
 }
 
-const countryFlags: Record<string, string> = {
-  CO: '🇨🇴', US: '🇺🇸', MX: '🇲🇽', ES: '🇪🇸', AR: '🇦🇷',
-  VE: '🇻🇪', PE: '🇵🇪', CL: '🇨🇱', EC: '🇪🇨', BR: '🇧🇷',
+const countryNames: Record<string, string> = {
+  CO: 'Colombia', US: 'EE.UU.', MX: 'México', ES: 'España', AR: 'Argentina',
+  VE: 'Venezuela', PE: 'Perú', CL: 'Chile', EC: 'Ecuador', BR: 'Brasil',
 }
 
-function getFlag(country: string | null) {
-  if (!country) return '🌐'
-  return countryFlags[country.toUpperCase()] ?? '🌐'
+function getCountryName(country: string | null) {
+  if (!country) return 'Desconocida'
+  return countryNames[country.toUpperCase()] ?? country
 }
 
 function formatLastSeen(iso: string) {
@@ -251,8 +251,10 @@ const scoreLabel = (score: number) =>
             </div>
             <div class="session-card__meta">
               <span class="session-card__location">
-                {{ getFlag(session.country) }}
-                {{ [session.city, session.country].filter(Boolean).join(', ') || 'Ubicación desconocida' }}
+                <svg width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0zM15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
+                </svg>
+                {{ [session.city, getCountryName(session.country)].filter(Boolean).join(', ') || 'Ubicación desconocida' }}
               </span>
               <span class="session-card__sep" aria-hidden="true">·</span>
               <span class="session-card__ip">{{ session.ip_masked ?? '—' }}</span>
@@ -283,7 +285,11 @@ const scoreLabel = (score: number) =>
       <h2 id="tips-title" class="security-page__section-title">Cómo protegerte de estafas</h2>
       <div class="security-tips">
         <div v-for="tip in SECURITY_TIPS" :key="tip.title" class="security-tip">
-          <div class="security-tip__icon" aria-hidden="true">{{ tip.icon }}</div>
+          <div class="security-tip__icon" aria-hidden="true">
+            <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.75">
+              <path stroke-linecap="round" stroke-linejoin="round" :d="tip.path" />
+            </svg>
+          </div>
           <div class="security-tip__body">
             <p class="security-tip__title">{{ tip.title }}</p>
             <p class="security-tip__desc">{{ tip.desc }}</p>
@@ -318,12 +324,12 @@ const scoreLabel = (score: number) =>
 
 <script lang="ts">
 const SECURITY_TIPS = [
-  { icon: '🚫', title: 'Nunca envíes dinero',            desc: 'Ningún usuario legítimo de Vylora te pedirá dinero, gift cards ni transferencias bancarias.' },
-  { icon: '🔒', title: 'No compartas contraseñas',       desc: 'Vylora nunca te pedirá tu contraseña por mensajes. Si alguien lo hace, es una estafa.' },
-  { icon: '🔗', title: 'Cuidado con links acortados',    desc: 'Los links de bit.ly, tinyurl y similares pueden ocultar sitios de phishing. No hagas clic sin verificar.' },
-  { icon: '👤', title: 'Verifica las cuentas nuevas',    desc: 'Las cuentas con el badge "Cuenta nueva" llevan menos de 30 días. Actúa con más precaución.' },
-  { icon: '📱', title: 'Revisa tus sesiones',             desc: 'Entra regularmente a esta página y cierra cualquier sesión que no reconozcas.' },
-  { icon: '🚨', title: 'Reporta comportamientos raros',  desc: 'Si alguien te pide información personal o actúa de forma sospechosa, usa el botón "Reportar".' },
+  { title: 'Nunca envíes dinero',            desc: 'Ningún usuario legítimo de Vylora te pedirá dinero, gift cards ni transferencias bancarias.', path: 'M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636' },
+  { title: 'No compartas contraseñas',       desc: 'Vylora nunca te pedirá tu contraseña por mensajes. Si alguien lo hace, es una estafa.',       path: 'M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z' },
+  { title: 'Cuidado con links acortados',    desc: 'Los links de bit.ly, tinyurl y similares pueden ocultar sitios de phishing.',                  path: 'M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1' },
+  { title: 'Verifica las cuentas nuevas',    desc: 'Las cuentas con el badge "Cuenta nueva" llevan menos de 30 días. Actúa con más precaución.',   path: 'M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z' },
+  { title: 'Revisa tus sesiones',             desc: 'Entra regularmente a esta página y cierra cualquier sesión que no reconozcas.',                 path: 'M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z' },
+  { title: 'Reporta comportamientos raros',  desc: 'Si alguien te pide información personal o actúa de forma sospechosa, usa el botón Reportar.', path: 'M12 9v2m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z' },
 ]
 </script>
 
@@ -448,7 +454,18 @@ const SECURITY_TIPS = [
   background: var(--cs-surface); border: 1px solid var(--cs-border);
   border-radius: 0.875rem;
 }
-.security-tip__icon  { font-size: 1.375rem; flex-shrink: 0; line-height: 1; margin-top: 2px; }
+.security-tip__icon {
+  flex-shrink: 0;
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  background: var(--cs-primary-subtle);
+  color: var(--cs-primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 2px;
+}
 .security-tip__title { font-size: 0.9rem; font-weight: 700; color: var(--cs-text); margin-bottom: 0.25rem; }
 .security-tip__desc  { font-size: 0.8125rem; color: var(--cs-text-muted); line-height: 1.5; }
 </style>

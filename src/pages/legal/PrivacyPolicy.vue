@@ -18,7 +18,12 @@ const CONTACT_EMAIL  = 'privacidad@vylora.app'
           </svg>
           Volver
         </button>
-        <div class="legal-page__badge">🔒 Documento Legal</div>
+        <div class="legal-page__badge">
+          <svg width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
+          </svg>
+          Política de Privacidad
+        </div>
       </div>
 
       <h1 class="legal-page__title">Política de Privacidad</h1>
@@ -77,12 +82,12 @@ const CONTACT_EMAIL  = 'privacidad@vylora.app'
           <h2>5. Tus derechos</h2>
           <p>Tienes los siguientes derechos reconocidos por la ley:</p>
           <ul>
-            <li>✅ <strong>Acceso:</strong> Puedes descargar todos tus datos desde Configuración → Privacidad → Exportar mis datos.</li>
-            <li>✅ <strong>Rectificación:</strong> Puedes actualizar tus datos desde la sección Perfil en cualquier momento.</li>
-            <li>✅ <strong>Eliminación (derecho al olvido):</strong> Puedes eliminar permanentemente tu cuenta y todos tus datos desde Configuración → Privacidad → Eliminar cuenta. Plazo máximo: 30 días calendario.</li>
-            <li>✅ <strong>Portabilidad:</strong> Puedes exportar tus datos en formato JSON desde Configuración → Privacidad.</li>
-            <li>✅ <strong>Oposición:</strong> Puedes oponerte al tratamiento escribiéndonos a {{ CONTACT_EMAIL }}.</li>
-            <li>✅ <strong>Revocación del consentimiento:</strong> Puedes revocar tu consentimiento en cualquier momento, lo que implicará la eliminación de tu cuenta.</li>
+            <li><strong>Acceso:</strong> Puedes descargar todos tus datos desde Configuración → Privacidad → Exportar mis datos.</li>
+            <li><strong>Rectificación:</strong> Puedes actualizar tus datos desde la sección Perfil en cualquier momento.</li>
+            <li><strong>Eliminación (derecho al olvido):</strong> Puedes eliminar permanentemente tu cuenta y todos tus datos desde Configuración → Privacidad → Eliminar cuenta. Plazo máximo: 30 días calendario.</li>
+            <li><strong>Portabilidad:</strong> Puedes exportar tus datos en formato JSON desde Configuración → Privacidad.</li>
+            <li><strong>Oposición:</strong> Puedes oponerte al tratamiento escribiéndonos a {{ CONTACT_EMAIL }}.</li>
+            <li><strong>Revocación del consentimiento:</strong> Puedes revocar tu consentimiento en cualquier momento, lo que implicará la eliminación de tu cuenta.</li>
           </ul>
         </section>
 
@@ -191,6 +196,9 @@ const CONTACT_EMAIL  = 'privacidad@vylora.app'
 .legal-page__back:hover { color: var(--cs-text); }
 
 .legal-page__badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
   font-size: 0.75rem;
   font-weight: 600;
   padding: 0.25rem 0.75rem;

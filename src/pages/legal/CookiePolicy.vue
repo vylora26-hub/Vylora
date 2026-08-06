@@ -15,7 +15,12 @@ const CONTACT_EMAIL = 'privacidad@vylora.app'
           </svg>
           Volver
         </button>
-        <div class="legal-page__badge">🍪 Documento Legal</div>
+        <div class="legal-page__badge">
+          <svg width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+          </svg>
+          Política de Cookies
+        </div>
       </div>
 
       <h1 class="legal-page__title">Política de Cookies</h1>
@@ -63,10 +68,10 @@ const CONTACT_EMAIL = 'privacidad@vylora.app'
           <h2>3. Cookies que NO usamos</h2>
           <p>Vylora <strong>NO usa</strong> ninguno de los siguientes tipos de cookies:</p>
           <ul>
-            <li>❌ Cookies de publicidad o seguimiento entre sitios</li>
-            <li>❌ Cookies de analítica de terceros (Google Analytics, etc.)</li>
-            <li>❌ Cookies de redes sociales</li>
-            <li>❌ Cookies de marketing o retargeting</li>
+            <li>Cookies de publicidad o seguimiento entre sitios</li>
+            <li>Cookies de analítica de terceros (Google Analytics, etc.)</li>
+            <li>Cookies de redes sociales</li>
+            <li>Cookies de marketing o retargeting</li>
           </ul>
         </section>
 

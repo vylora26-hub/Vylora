@@ -18,7 +18,12 @@ const CONTACT_EMAIL = 'legal@vylora.app'
           </svg>
           Volver
         </button>
-        <div class="legal-page__badge">📄 Documento Legal</div>
+        <div class="legal-page__badge">
+          <svg width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+          </svg>
+          Términos y Condiciones
+        </div>
       </div>
 
       <h1 class="legal-page__title">Términos y Condiciones</h1>
@@ -143,7 +148,7 @@ const CONTACT_EMAIL = 'legal@vylora.app'
 .legal-page__header { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 0.75rem; }
 .legal-page__back { display: inline-flex; align-items: center; gap: 0.375rem; font-size: 0.875rem; color: var(--cs-text-muted); background: none; border: none; cursor: pointer; transition: color 0.15s; padding: 0; }
 .legal-page__back:hover { color: var(--cs-text); }
-.legal-page__badge { font-size: 0.75rem; font-weight: 600; padding: 0.25rem 0.75rem; border-radius: 9999px; background: var(--cs-surface-2); color: var(--cs-text-secondary); border: 1px solid var(--cs-border); }
+.legal-page__badge { font-size: 0.75rem; font-weight: 600; padding: 0.25rem 0.75rem; border-radius: 9999px; background: var(--cs-surface-2); color: var(--cs-text-secondary); border: 1px solid var(--cs-border); display: inline-flex; align-items: center; gap: 0.375rem; }
 .legal-page__title { font-size: clamp(1.5rem, 4vw, 2rem); font-weight: 800; color: var(--cs-text); letter-spacing: -0.03em; margin: 0; }
 .legal-page__meta { font-size: 0.875rem; color: var(--cs-text-muted); margin: -0.5rem 0 0; }
 .legal-body { display: flex; flex-direction: column; gap: 1.75rem; color: var(--cs-text-secondary); line-height: 1.7; font-size: 0.9375rem; }
