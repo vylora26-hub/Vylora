@@ -153,39 +153,55 @@ export const useAuthStore = defineStore('auth', () => {
       let emailToUse: string | null = null
 
       if (profile?.id) {
-        // Tenemos el ID — obtener email real
         const { data: emailData } = await supabase!
           .rpc('get_email_by_user_id', { p_user_id: profile.id })
         emailToUse = emailData as string | null
       }
 
-      // ESTRATEGIA 2: Fallback — construir email interno directamente
-      // (funciona si el registro usó username@users.vylora.app)
-      if (!emailToUse) {
-        emailToUse = `${sanitizeText(username.toLowerCase().trim())}@users.vylora.app`
+      // Si tenemos email real de la BD, usarlo directamente
+      if (emailToUse) {
+        const { data, error: err } = await supabase!.auth.signInWithPassword({
+          email: emailToUse,
+          password,
+        })
+        if (!err && data.session) {
+          await _loadSessionFromSupabase(
+            data.session.user.id,
+            data.session.user.email ?? '',
+            data.session.access_token,
+            data.session.expires_at ?? 0,
+          )
+          return true
+        }
       }
 
-      // Autenticar con email + password
-      const { data, error: err } = await supabase!.auth.signInWithPassword({
-        email: emailToUse,
-        password,
-      })
+      // ESTRATEGIA 2: Probar los dos formatos de email interno posibles
+      const cleanUsername = sanitizeText(username.toLowerCase().trim())
+      const emailVariants = [
+        `${cleanUsername}@users.vylora.app`,
+        `${cleanUsername}@vylora.app`,
+        `${cleanUsername}@vylora.local`,
+      ]
 
-      if (err) {
-        // Si ambas estrategias fallaron, mostrar error claro
-        setError(_mapAuthError(err.message))
-        return false
+      for (const email of emailVariants) {
+        const { data, error: err } = await supabase!.auth.signInWithPassword({
+          email,
+          password,
+        })
+        if (!err && data.session) {
+          await _loadSessionFromSupabase(
+            data.session.user.id,
+            data.session.user.email ?? '',
+            data.session.access_token,
+            data.session.expires_at ?? 0,
+          )
+          return true
+        }
       }
 
-      if (!data.session) throw new Error('No se recibió sesión.')
-
-      await _loadSessionFromSupabase(
-        data.session.user.id,
-        data.session.user.email ?? '',
-        data.session.access_token,
-        data.session.expires_at ?? 0,
-      )
-      return true
+      // Todas las estrategias fallaron
+      setError('Usuario o contraseña incorrectos.')
+      return false
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : 'Error al iniciar sesión.'
       setError(_mapAuthError(msg))
