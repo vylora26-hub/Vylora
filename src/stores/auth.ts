@@ -114,7 +114,82 @@ export const useAuthStore = defineStore('auth', () => {
   }
 
   /**
-   * Inicio de sesión con email y contraseña.
+   * Inicio de sesión con username y contraseña.
+   * Busca el email asociado al username y luego autentica con Supabase.
+   */
+  async function loginWithUsername(username: string, password: string): Promise<boolean> {
+    loading.value = true
+    clearError()
+
+    try {
+      if (isMockMode) {
+        const mockId = `mock_${username}`
+        const mockSession: AuthSession = {
+          userId: mockId,
+          email: `${username}@vylora.local`,
+          role: username.includes('admin') ? 'admin' : 'user',
+          accessToken: 'mock_token',
+          expiresAt: Date.now() + 86_400_000,
+        }
+        persistSession(mockSession)
+        user.value = {
+          ...MOCK_USER,
+          id: mockId,
+          username: sanitizeText(username),
+          displayName: sanitizeText(username),
+          role: mockSession.role,
+        }
+        localStorage.setItem(`cs_user_${mockId}`, JSON.stringify(user.value))
+        return true
+      }
+
+      // 1. Buscar el email del usuario por su username
+      const { data: profile, error: profileErr } = await supabase!
+        .from('users')
+        .select('id')
+        .eq('username', username)
+        .single()
+
+      if (profileErr || !profile) {
+        setError('Usuario o contraseña incorrectos.')
+        return false
+      }
+
+      // 2. Obtener el email desde auth.users via RPC
+      const { data: emailData, error: emailErr } = await supabase!
+        .rpc('get_email_by_user_id', { p_user_id: profile.id })
+
+      if (emailErr || !emailData) {
+        setError('Usuario o contraseña incorrectos.')
+        return false
+      }
+
+      // 3. Autenticar con email + password
+      const { data, error: err } = await supabase!.auth.signInWithPassword({
+        email: emailData as string,
+        password,
+      })
+      if (err) throw err
+      if (!data.session) throw new Error('No se recibió sesión.')
+
+      await _loadSessionFromSupabase(
+        data.session.user.id,
+        data.session.user.email ?? '',
+        data.session.access_token,
+        data.session.expires_at ?? 0,
+      )
+      return true
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : 'Error al iniciar sesión.'
+      setError(_mapAuthError(msg))
+      return false
+    } finally {
+      loading.value = false
+    }
+  }
+
+  /**
+   * Inicio de sesión con email y contraseña (mantenido internamente).
    */
   async function login(email: string, password: string): Promise<boolean> {
     loading.value = true
@@ -122,7 +197,6 @@ export const useAuthStore = defineStore('auth', () => {
 
     try {
       if (isMockMode) {
-        // Mock: acepta cualquier combinación válida
         const mockId = `mock_${btoa(email).slice(0, 8)}`
         const mockSession: AuthSession = {
           userId: mockId,
@@ -163,10 +237,11 @@ export const useAuthStore = defineStore('auth', () => {
   }
 
   /**
-   * Registro de nuevo usuario.
+   * Registro sin email público.
+   * Genera un email interno basado en el username para Supabase Auth.
    */
   async function register(
-    email: string,
+    _email: string,
     password: string,
     username: string,
     displayName: string,
@@ -175,11 +250,16 @@ export const useAuthStore = defineStore('auth', () => {
     clearError()
 
     try {
+      // Generar email interno — no se muestra al usuario nunca
+      const internalEmail = isMockMode
+        ? `${sanitizeText(username)}@vylora.local`
+        : `${sanitizeText(username)}@users.vylora.app`
+
       if (isMockMode) {
-        const mockId = `mock_${btoa(email).slice(0, 8)}`
+        const mockId = `mock_${username}`
         const mockSession: AuthSession = {
           userId: mockId,
-          email: sanitizeText(email),
+          email: internalEmail,
           role: 'user',
           accessToken: 'mock_token',
           expiresAt: Date.now() + 86_400_000,
@@ -196,17 +276,17 @@ export const useAuthStore = defineStore('auth', () => {
       }
 
       const { data, error: err } = await supabase!.auth.signUp({
-        email,
+        email: internalEmail,
         password,
         options: {
-          data: { display_name: sanitizeText(displayName), username: sanitizeText(username) },
+          data: {
+            display_name: sanitizeText(displayName),
+            username: sanitizeText(username),
+          },
         },
       })
       if (err) throw err
-      if (!data.session) {
-        // Supabase requiere confirmación de email
-        return true
-      }
+      if (!data.session) return true // email confirmation pendiente (no aplica aquí)
 
       await _loadSessionFromSupabase(
         data.session.user.id,
@@ -352,6 +432,7 @@ export const useAuthStore = defineStore('auth', () => {
     // Actions
     initialize,
     login,
+    loginWithUsername,
     register,
     recoverPassword,
     logout,

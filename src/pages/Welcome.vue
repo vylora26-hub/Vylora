@@ -1,9 +1,23 @@
 <script setup lang="ts">
+import { ref, onMounted } from 'vue'
 import { RouterLink } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 import AppButton from '@/components/ui/AppButton.vue'
+import AgeGate from '@/components/common/AgeGate.vue'
 
 const authStore = useAuthStore()
+
+// Verificar si ya confirmó la edad previamente
+const showAgeGate = ref(false)
+
+onMounted(() => {
+  const verified = localStorage.getItem('vylora_age_verified')
+  if (!verified) showAgeGate.value = true
+})
+
+function onAgeConfirmed() {
+  showAgeGate.value = false
+}
 
 const features = [
   {
@@ -31,6 +45,9 @@ const features = [
 
 <template>
   <div class="welcome">
+    <!-- Modal verificación de edad -->
+    <AgeGate v-if="showAgeGate" @confirm="onAgeConfirmed" />
+
     <!-- Fondo decorativo -->
     <div class="welcome__bg" aria-hidden="true">
       <div class="welcome__blob welcome__blob--1" />
