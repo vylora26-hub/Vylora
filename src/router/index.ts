@@ -23,6 +23,26 @@ const routes: RouteRecordRaw[] = [
     meta: { title: 'Bienvenido — Vylora' },
   },
 
+  // ---- Páginas legales (públicas, sin auth) ----
+  {
+    path: '/privacy',
+    name: 'PrivacyPolicy',
+    component: () => import('@/pages/legal/PrivacyPolicy.vue'),
+    meta: { title: 'Política de Privacidad — Vylora' },
+  },
+  {
+    path: '/terms',
+    name: 'TermsOfService',
+    component: () => import('@/pages/legal/TermsOfService.vue'),
+    meta: { title: 'Términos y Condiciones — Vylora' },
+  },
+  {
+    path: '/cookies',
+    name: 'CookiePolicy',
+    component: () => import('@/pages/legal/CookiePolicy.vue'),
+    meta: { title: 'Política de Cookies — Vylora' },
+  },
+
   // ---- Auth (solo para no autenticados) ----
   {
     path: '/auth',

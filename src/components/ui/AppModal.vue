@@ -13,6 +13,7 @@ const props = withDefaults(defineProps<Props>(), {
   cancelLabel: 'Cancelar',
   variant: 'default',
   loading: false,
+  disabled: false,
 })
 
 const emit = defineEmits<{
@@ -89,6 +90,7 @@ onUnmounted(() => {
                 :variant="variant === 'danger' ? 'danger' : 'primary'"
                 size="sm"
                 :loading="loading"
+                :disabled="disabled"
                 @click="confirm"
               >
                 {{ confirmLabel }}

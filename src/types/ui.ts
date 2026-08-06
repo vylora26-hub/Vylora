@@ -30,6 +30,7 @@ export interface ModalConfig {
   cancelLabel?: string
   variant?: 'default' | 'danger'
   loading?: boolean
+  disabled?: boolean
 }
 
 /** Estado de carga para operaciones async */

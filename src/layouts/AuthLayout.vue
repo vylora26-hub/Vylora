@@ -33,8 +33,12 @@
       <footer class="auth-layout__footer">
         <p>
           Al continuar aceptas nuestros
-          <a href="#" class="auth-layout__link">Términos</a> y
-          <a href="#" class="auth-layout__link">Privacidad</a>.
+          <RouterLink to="/terms" class="auth-layout__link">Términos</RouterLink>,
+          <RouterLink to="/privacy" class="auth-layout__link">Privacidad</RouterLink> y
+          <RouterLink to="/cookies" class="auth-layout__link">Cookies</RouterLink>.
+        </p>
+        <p style="margin-top:0.375rem">
+          Plataforma exclusiva para mayores de <strong>18 años</strong>.
         </p>
       </footer>
     </main>
