@@ -7,7 +7,7 @@ import { useAuthStore } from '@/stores/auth'
 
 /**
  * Redirige a /auth/login si el usuario no está autenticado.
- * Guarda la ruta destino para redirigir después del login.
+ * Permite acceso a rutas marcadas con meta.allowGuest = true.
  */
 export async function authGuard(
   to: RouteLocationNormalized,
@@ -16,9 +16,14 @@ export async function authGuard(
 ): Promise<void> {
   const authStore = useAuthStore()
 
-  // Esperar a que se inicialice la sesión (solo la primera vez)
   if (!authStore.initialized) {
     await authStore.initialize()
+  }
+
+  // Rutas que permiten invitados (ej. /app/home, /app/rooms)
+  if (to.meta.allowGuest) {
+    next()
+    return
   }
 
   if (!authStore.isAuthenticated) {

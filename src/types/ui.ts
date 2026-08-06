@@ -14,7 +14,7 @@ export interface Toast {
   duration?: number
 }
 
-export type ButtonVariant = 'primary' | 'secondary' | 'ghost' | 'danger' | 'outline'
+export type ButtonVariant = 'primary' | 'secondary' | 'ghost' | 'danger' | 'outline' | 'success'
 export type ButtonSize = 'xs' | 'sm' | 'md' | 'lg'
 
 export type InputSize = 'sm' | 'md' | 'lg'
@@ -29,6 +29,7 @@ export interface ModalConfig {
   confirmLabel?: string
   cancelLabel?: string
   variant?: 'default' | 'danger'
+  loading?: boolean
 }
 
 /** Estado de carga para operaciones async */

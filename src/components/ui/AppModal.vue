@@ -12,6 +12,7 @@ const props = withDefaults(defineProps<Props>(), {
   confirmLabel: 'Confirmar',
   cancelLabel: 'Cancelar',
   variant: 'default',
+  loading: false,
 })
 
 const emit = defineEmits<{
@@ -87,6 +88,7 @@ onUnmounted(() => {
               <AppButton
                 :variant="variant === 'danger' ? 'danger' : 'primary'"
                 size="sm"
+                :loading="loading"
                 @click="confirm"
               >
                 {{ confirmLabel }}

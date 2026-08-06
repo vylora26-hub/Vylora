@@ -64,19 +64,19 @@ const routes: RouteRecordRaw[] = [
         path: 'home',
         name: 'Home',
         component: () => import('@/pages/Home.vue'),
-        meta: { title: 'Inicio — Vylora' },
+        meta: { title: 'Inicio — Vylora', allowGuest: true },
       },
       {
         path: 'rooms',
         name: 'Rooms',
         component: () => import('@/pages/Rooms.vue'),
-        meta: { title: 'Salas — Vylora' },
+        meta: { title: 'Salas — Vylora', allowGuest: true },
       },
       {
         path: 'room/:slug',
         name: 'Room',
         component: () => import('@/pages/Room.vue'),
-        meta: { title: 'Sala — Vylora' },
+        meta: { title: 'Sala — Vylora', allowGuest: true },
         props: true,
       },
       {

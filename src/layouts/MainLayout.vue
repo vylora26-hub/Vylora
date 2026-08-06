@@ -4,6 +4,7 @@ import { RouterView, RouterLink, useRoute } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 import { useUiStore } from '@/stores/ui'
 import { useNotificationsStore } from '@/stores/notifications'
+import { useDmStore } from '@/stores/dm'
 import ToastContainer from '@/components/common/ToastContainer.vue'
 import type { NavItem } from '@/types'
 
@@ -11,10 +12,14 @@ const route = useRoute()
 const authStore = useAuthStore()
 const uiStore = useUiStore()
 const notifStore = useNotificationsStore()
+const dmStore    = useDmStore()
 
 onMounted(() => {
   notifStore.fetchNotifications()
   notifStore.subscribe()
+  if (authStore.isAuthenticated) {
+    dmStore.fetchConversations()
+  }
 })
 
 onUnmounted(() => {
@@ -38,6 +43,9 @@ const adminNavItems: NavItem[] = [
 const isActive = (path: string) => route.path.startsWith(path)
 
 const unreadNotifications = computed(() => notifStore.unreadCount)
+const unreadDms = computed(() =>
+  dmStore.conversations.reduce((acc, c) => acc + (c.unreadCount ?? 0), 0)
+)
 
 function getNavIcon(icon: string): string {
   const icons: Record<string, string> = {
@@ -107,6 +115,14 @@ function getNavIcon(icon: string): string {
                 :aria-label="`${unreadNotifications} notificaciones sin leer`"
               >
                 {{ unreadNotifications > 99 ? '99+' : unreadNotifications }}
+              </span>
+              <!-- Badge de DMs no leídos -->
+              <span
+                v-if="item.icon === 'envelope' && unreadDms > 0"
+                class="sidebar__badge"
+                :aria-label="`${unreadDms} mensajes sin leer`"
+              >
+                {{ unreadDms > 99 ? '99+' : unreadDms }}
               </span>
             </RouterLink>
           </li>
@@ -200,6 +216,13 @@ function getNavIcon(icon: string): string {
               :aria-label="`${unreadNotifications} notificaciones`"
             >
               {{ unreadNotifications > 9 ? '9+' : unreadNotifications }}
+            </span>
+            <span
+              v-if="item.icon === 'envelope' && unreadDms > 0"
+              class="mobile-nav__badge"
+              :aria-label="`${unreadDms} mensajes`"
+            >
+              {{ unreadDms > 9 ? '9+' : unreadDms }}
             </span>
           </RouterLink>
         </li>

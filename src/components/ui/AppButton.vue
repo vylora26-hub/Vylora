@@ -116,6 +116,16 @@ function handleClick(e: MouseEvent) {
 }
 .btn--outline:hover:not(:disabled) { background: var(--cs-primary-subtle); }
 
+.btn--success {
+  background: #16a34a;
+  color: #fff;
+  box-shadow: 0 1px 3px rgba(22,163,74,0.3);
+}
+.btn--success:hover:not(:disabled) {
+  background: #15803d;
+  box-shadow: 0 4px 12px rgba(22,163,74,0.35);
+}
+
 .btn--danger {
   background: #ef4444;
   color: #fff;
